@@ -1,0 +1,4 @@
+CXXFLAGS=-lm
+
+main:
+
