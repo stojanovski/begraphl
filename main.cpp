@@ -3,6 +3,8 @@
 #include <vector>
 #include <exception>
 #include <string>
+#include <cassert>
+#include <cmath>
 
 // system services:
 #include <unistd.h>
@@ -126,6 +128,104 @@ void Frame::init(unsigned width, unsigned height)
 std::ostream& operator<<(std::ostream& os, const Frame& f)
 {
     return os;
+}
+
+class Range
+{
+public:
+    Range() : _from(0.0), _to(0.0) { }
+    Range(double f, double t) : _from(f), _to(t) {
+        assert(t >= f);
+    }
+
+    double from() const { return _from; }
+    double to() const { return _to; }
+    double& from() { return _from; }
+    double& to() { return _to; }
+    double distance() const {
+        return _to - _from;
+    }
+
+private:
+    double _from;
+    double _to;
+};
+
+class CoordinateSystem
+{
+public:
+    CoordinateSystem(Frame& frame);
+    void set_range(const Range& x_axis, double y_origin_offset = 0);
+    const Range& x_axis_range() const {
+        return _x_axis_range;
+    }
+    void draw_at(double x, double y);
+
+private:
+    Frame & _frame;
+    Range _x_axis_range;
+    Range _y_axis_range;
+};
+
+CoordinateSystem::CoordinateSystem(Frame& frame) :
+    _frame(frame)
+{
+}
+
+void CoordinateSystem::set_range(const Range& x_axis, double y_origin_offset)
+{
+    _x_axis_range = x_axis;
+    const double half_distance = _x_axis_range.distance() / 2.0;
+    const double y_to_x_frame_ratio = (double)_frame.height() /
+                                      (double)_frame.width();
+    _y_axis_range = Range(y_origin_offset - (half_distance * y_to_x_frame_ratio),
+                          y_origin_offset + (half_distance * y_to_x_frame_ratio));
+}
+
+void CoordinateSystem::draw_at(double x, double y)
+{
+    // TODO(igor): implement
+    (void)x; (void)y;
+}
+
+class TestSinChart
+{
+public:
+    TestSinChart();
+
+    void init(const Range& x_axis_range,
+              unsigned frame_width,
+              unsigned frame_height);
+    void run();
+
+private:
+    Frame _frame;
+    CoordinateSystem _coor_sys;
+};
+
+TestSinChart::TestSinChart() : _coor_sys(_frame)
+{
+}
+
+void TestSinChart::init(const Range& x_axis_range,
+                        unsigned frame_width,
+                        unsigned frame_height)
+{
+    _frame.init(frame_width, frame_height);
+    _coor_sys.set_range(x_axis_range);
+}
+
+void TestSinChart::run()
+{
+    const Range& x_axis_range = _coor_sys.x_axis_range();
+    const double start = x_axis_range.from();
+    const double increment = x_axis_range.distance() / (double)_frame.width();
+
+    for (unsigned i = 0; i < _frame.width(); ++i) {
+        const double x = start + ((double)i * increment);
+        const double y = sin(x);
+        _coor_sys.draw_at(x, y);
+    }
 }
 
 int main()
