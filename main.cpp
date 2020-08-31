@@ -159,7 +159,7 @@ public:
     const Range& x_axis_range() const {
         return _x_axis_range;
     }
-    void draw_at(double x, double y);
+    void draw_at(const Point& p);
 
 private:
     Frame & _frame;
@@ -182,10 +182,10 @@ void CoordinateSystem::set_range(const Range& x_axis, double y_origin_offset)
                           y_origin_offset + (half_distance * y_to_x_frame_ratio));
 }
 
-void CoordinateSystem::draw_at(double x, double y)
+void CoordinateSystem::draw_at(const Point& p)
 {
     // TODO(igor): implement
-    (void)x; (void)y;
+    (void)p;
 }
 
 class TestSinChart
@@ -224,7 +224,7 @@ void TestSinChart::run()
     for (unsigned i = 0; i < _frame.width(); ++i) {
         const double x = start + ((double)i * increment);
         const double y = sin(x);
-        _coor_sys.draw_at(x, y);
+        _coor_sys.draw_at(Point{x, y});
     }
 }
 
