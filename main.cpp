@@ -188,10 +188,10 @@ void CoordinateSystem::draw_at(const Point& p)
     (void)p;
 }
 
-class TestSinChart
+class FuncChart
 {
 public:
-    TestSinChart();
+    FuncChart();
 
     void init(const Range& x_axis_range,
               unsigned frame_width,
@@ -203,19 +203,19 @@ private:
     CoordinateSystem _coor_sys;
 };
 
-TestSinChart::TestSinChart() : _coor_sys(_frame)
+FuncChart::FuncChart() : _coor_sys(_frame)
 {
 }
 
-void TestSinChart::init(const Range& x_axis_range,
-                        unsigned frame_width,
-                        unsigned frame_height)
+void FuncChart::init(const Range& x_axis_range,
+                     unsigned frame_width,
+                     unsigned frame_height)
 {
     _frame.init(frame_width, frame_height);
     _coor_sys.set_range(x_axis_range);
 }
 
-void TestSinChart::run()
+void FuncChart::run()
 {
     const Range& x_axis_range = _coor_sys.x_axis_range();
     const double start = x_axis_range.from();
