@@ -151,6 +151,59 @@ private:
     double _to;
 };
 
+class StepRange : public Range
+{
+public:
+    class Iterator {
+    public:
+        Iterator() : _steps(0), _cur_step(0) { }
+
+        bool next(double *point) {
+            if (_cur_step < _steps) {
+                *point = _from + (_cur_step++ * (_dist * (_steps - 1)));
+                return true;
+            }
+
+            return false;
+        }
+
+    private:
+        Iterator(double from, double dist, size_t steps) :
+            _from(from), _dist(dist), _steps(steps), _cur_step(0)
+        {
+            assert(_dist > 0.0);
+            assert(_steps > 1);
+        }
+
+        double _from;
+        double _dist;
+        size_t _steps;
+        size_t _cur_step;
+
+        friend class StepRange;
+    };
+
+    StepRange(double from, double to, size_t steps);
+
+    Iterator iterator() const;
+
+private:
+    const size_t _steps;
+};
+
+StepRange::StepRange(double from, double to, size_t steps) :
+    Range(from, to), _steps(steps)
+{
+    if (distance() == 0.0 || _steps < 2) {
+        throw Exception("StepRange must be of non-zero distance and have multiple steps");
+    }
+}
+
+StepRange::Iterator StepRange::iterator() const
+{
+    return Iterator(from(), distance(), _steps);
+}
+
 class CoordinateSystem
 {
 public:
