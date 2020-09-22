@@ -207,42 +207,12 @@ StepRange::Iterator StepRange::iterator() const
 class CoordinateSystem
 {
 public:
-    class Iterator {
-    public:
-        Iterator() : _steps(0), _cur_step(0) { }
-
-        bool next(double *point) {
-            if (_cur_step < _steps) {
-                *point = _from + (_cur_step++ * (_dist * (_steps - 1)));
-                return true;
-            }
-
-            return false;
-        }
-
-    private:
-        Iterator(double from, double dist, size_t steps) :
-            _from(from), _dist(dist), _steps(steps), _cur_step(0)
-        {
-            assert(_dist > 0.0);
-            assert(_steps > 1);
-        }
-
-        double _from;
-        double _dist;
-        size_t _steps;
-        size_t _cur_step;
-
-        friend class CoordinateSystem;
-    };
-
     CoordinateSystem(Frame& frame);
     void set_range(const Range& x_axis, double y_origin_offset = 0);
     const Range& x_axis_range() const {
         return _x_axis_range;
     }
     void set_point(const Point& p);
-    Iterator iterator() const;
 
 private:
     Frame & _frame;
@@ -271,11 +241,6 @@ void CoordinateSystem::set_range(const Range& x_axis, double y_origin_offset)
 void CoordinateSystem::set_point(const Point& p)
 {
     (void)p;
-}
-
-CoordinateSystem::Iterator CoordinateSystem::iterator() const
-{
-    return Iterator(_x_axis_range.from(), _x_axis_range.distance(), _frame.width());
 }
 
 class FuncChart
