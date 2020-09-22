@@ -201,7 +201,7 @@ class CoordinateSystem
 {
 public:
     CoordinateSystem(Frame& frame, const Range& x_axis, double y_origin_offset = 0.0);
-    const Range& x_axis_range() const {
+    const StepRange& x_axis_range() const {
         return _x_axis_range;
     }
     void set_point(const Point& p);
@@ -258,12 +258,9 @@ FuncChart::FuncChart(const Range& x_axis_range,
 
 void FuncChart::run()
 {
-    const Range& x_axis_range = _coor_sys.x_axis_range();
-    const double start = x_axis_range.from();
-    const double increment = x_axis_range.distance() / (double)_frame.width();
-
-    for (unsigned i = 0; i < _frame.width(); ++i) {
-        const double x = start + ((double)i * increment);
+    StepRange::Iterator it = _coor_sys.x_axis_range().iterator();
+    double x;
+    while (it.next(&x)) {
         const double y = sin(x);
         _coor_sys.set_point(Point{x, y});
     }
