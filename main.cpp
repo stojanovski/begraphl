@@ -90,36 +90,29 @@ typedef unsigned char pixel_t;
 class Frame
 {
 public:
-    Frame();
+    Frame(unsigned width, unsigned height);
 
-    void init(unsigned width, unsigned height);
     unsigned width() const { return _width; }
     unsigned height() const { return _height; }
 
 private:
-    unsigned _width;
-    unsigned _height;
+    const unsigned _width;
+    const unsigned _height;
     std::vector<pixel_t> _screen;
 };
 
 const static unsigned MAX_WIDTH = 1024;
 const static unsigned MAX_HEIGHT = 1024;
 
-Frame::Frame() : _width(0), _height(0)
+Frame::Frame(unsigned width, unsigned height) :
+    _width(width), _height(height)
 {
-}
-
-void Frame::init(unsigned width, unsigned height)
-{
-    if (width > MAX_WIDTH) {
+    if (_width > MAX_WIDTH) {
         throw Exception("Width is greater than the maxiumum allowed");
     }
-    else if (height > MAX_HEIGHT) {
+    else if (_height > MAX_HEIGHT) {
         throw Exception("Height is greater than the maxiumum allowed");
     }
-
-    _width = width;
-    _height = height;
 
     // init empty frame
     _screen.resize(_width * _height, 0);
@@ -183,7 +176,7 @@ public:
         friend class StepRange;
     };
 
-    StepRange(double from, double to, size_t steps);
+    StepRange(Range range, size_t steps);
 
     Iterator iterator() const;
 
@@ -191,8 +184,8 @@ private:
     const size_t _steps;
 };
 
-StepRange::StepRange(double from, double to, size_t steps) :
-    Range(from, to), _steps(steps)
+StepRange::StepRange(Range range, size_t steps) :
+    Range(range), _steps(steps)
 {
     if (distance() == 0.0 || _steps < 2) {
         throw Exception("StepRange must be of non-zero distance and have multiple steps");
@@ -207,30 +200,25 @@ StepRange::Iterator StepRange::iterator() const
 class CoordinateSystem
 {
 public:
-    CoordinateSystem(Frame& frame);
-    void set_range(const Range& x_axis, double y_origin_offset = 0);
+    CoordinateSystem(Frame& frame, const Range& x_axis, double y_origin_offset = 0.0);
     const Range& x_axis_range() const {
         return _x_axis_range;
     }
     void set_point(const Point& p);
 
 private:
-    Frame & _frame;
-    Range _x_axis_range;
+    const Frame& _frame;
+    const StepRange _x_axis_range;
     Range _y_axis_range;
 };
 
-CoordinateSystem::CoordinateSystem(Frame& frame) :
-    _frame(frame)
+CoordinateSystem::CoordinateSystem(Frame& frame, const Range& x_axis, double y_origin_offset) :
+    _frame(frame), _x_axis_range(x_axis, frame.width())
 {
     if (_frame.width() < 2) {
         throw Exception("Frame must be at least 2 units wide");
     }
-}
 
-void CoordinateSystem::set_range(const Range& x_axis, double y_origin_offset)
-{
-    _x_axis_range = x_axis;
     const double half_distance = _x_axis_range.distance() / 2.0;
     const double y_to_x_frame_ratio = (double)_frame.height() /
                                       (double)_frame.width();
@@ -246,7 +234,9 @@ void CoordinateSystem::set_point(const Point& p)
 class FuncChart
 {
 public:
-    FuncChart();
+    FuncChart(const Range& x_axis_range,
+              unsigned frame_width,
+              unsigned frame_height);
 
     void init(const Range& x_axis_range,
               unsigned frame_width,
@@ -258,16 +248,12 @@ private:
     CoordinateSystem _coor_sys;
 };
 
-FuncChart::FuncChart() : _coor_sys(_frame)
-{
-}
-
-void FuncChart::init(const Range& x_axis_range,
+FuncChart::FuncChart(const Range& x_axis_range,
                      unsigned frame_width,
-                     unsigned frame_height)
+                     unsigned frame_height) :
+    _frame(frame_width, frame_height),
+    _coor_sys(_frame, x_axis_range)
 {
-    _frame.init(frame_width, frame_height);
-    _coor_sys.set_range(x_axis_range);
 }
 
 void FuncChart::run()
