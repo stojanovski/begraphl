@@ -133,8 +133,6 @@ public:
 
     double from() const { return _from; }
     double to() const { return _to; }
-    double& from() { return _from; }
-    double& to() { return _to; }
     double distance() const {
         return _to - _from;
     }
