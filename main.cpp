@@ -108,10 +108,10 @@ Frame::Frame(unsigned width, unsigned height) :
     _width(width), _height(height)
 {
     if (_width > MAX_WIDTH) {
-        throw Exception("Width is greater than the maxiumum allowed");
+        throw Exception("Frame width cannot be greater than the maxiumum allowed");
     }
     else if (_height > MAX_HEIGHT) {
-        throw Exception("Height is greater than the maxiumum allowed");
+        throw Exception("Frame height cannot be greater than the maxiumum allowed");
     }
 
     // init empty frame
@@ -188,7 +188,7 @@ StepRange::StepRange(Range range, size_t steps) :
     Range(range), _steps(steps)
 {
     if (distance() == 0.0 || _steps < 2) {
-        throw Exception("StepRange must be of non-zero distance and have multiple steps");
+        throw Exception("StepRange must be of non-zero distance and have at least 2 steps");
     }
 }
 
