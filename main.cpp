@@ -4,8 +4,8 @@
 #include <exception>
 #include <string>
 #include <cassert>
-#include <cmath>
-#include <limits>
+#include <cmath>   // sin()
+#include <limits>  // std::numeric_limits()
 
 // system services:
 #include <unistd.h>
@@ -88,7 +88,8 @@ private:
 
 typedef unsigned char pixel_t;
 
-const pixel_t PIXEL_T_FILL = std::numeric_limits<pixel_t>::max();
+const pixel_t PIXEL_T_EMPTY = 0;
+const pixel_t PIXEL_T_FILLED = std::numeric_limits<pixel_t>::max();
 
 class Frame
 {
@@ -192,6 +193,19 @@ public:
 
         void set(double value) {
             assert(_cur_step < _steps);
+
+            const Range& yr = _coor->_y_axis_range;
+            if (value < yr.from() || value > yr.to()) {
+                // value is out of range: ignore
+                return;
+            }
+
+            // convert "value" to a proper Frame value
+            const double ratio = (value - yr.from()) / yr.distance();
+            Frame& frame = _coor->_frame;
+            const double col = frame.height() - (ratio * frame.height());
+
+            frame.draw((unsigned)col, (unsigned)_cur_step, PIXEL_T_FILLED);
         }
 
     private:
@@ -218,7 +232,7 @@ public:
     Iterator iterator();
 
 private:
-    const Frame& _frame;
+    Frame& _frame;
     const StepRange _x_axis_range;
     Range _y_axis_range;
 };
