@@ -145,6 +145,27 @@ private:
 class StepRange : public Range
 {
 public:
+    StepRange(Range range, size_t steps);
+
+    size_t steps() const {
+        return _steps;
+    }
+
+private:
+    const size_t _steps;
+};
+
+StepRange::StepRange(Range range, size_t steps) :
+    Range(range), _steps(steps)
+{
+    if (distance() == 0.0 || _steps < 2) {
+        throw Exception("StepRange must be of non-zero distance and have at least 2 steps");
+    }
+}
+
+class CoordinateSystem
+{
+public:
     class Iterator {
     public:
         Iterator() : _steps(0), _cur_step(0) { }
@@ -171,38 +192,16 @@ public:
         size_t _steps;
         size_t _cur_step;
 
-        friend class StepRange;
+        friend class CoordinateSystem;
     };
 
-    StepRange(Range range, size_t steps);
-
-    Iterator iterator() const;
-
-private:
-    const size_t _steps;
-};
-
-StepRange::StepRange(Range range, size_t steps) :
-    Range(range), _steps(steps)
-{
-    if (distance() == 0.0 || _steps < 2) {
-        throw Exception("StepRange must be of non-zero distance and have at least 2 steps");
-    }
-}
-
-StepRange::Iterator StepRange::iterator() const
-{
-    return Iterator(from(), distance(), _steps);
-}
-
-class CoordinateSystem
-{
-public:
     CoordinateSystem(Frame& frame, const Range& x_axis, double y_origin_offset = 0.0);
     const StepRange& x_axis_range() const {
         return _x_axis_range;
     }
     void set_point(const Point& p);
+
+    Iterator iterator() const;
 
 private:
     const Frame& _frame;
@@ -222,6 +221,11 @@ CoordinateSystem::CoordinateSystem(Frame& frame, const Range& x_axis, double y_o
                                       (double)_frame.width();
     _y_axis_range = Range(y_origin_offset - (half_distance * y_to_x_frame_ratio),
                           y_origin_offset + (half_distance * y_to_x_frame_ratio));
+}
+
+CoordinateSystem::Iterator CoordinateSystem::iterator() const
+{
+    return Iterator(_x_axis_range.from(), _x_axis_range.distance(), _x_axis_range.steps());
 }
 
 void CoordinateSystem::set_point(const Point& p)
@@ -256,7 +260,7 @@ FuncChart::FuncChart(const Range& x_axis_range,
 
 void FuncChart::run()
 {
-    StepRange::Iterator it = _coor_sys.x_axis_range().iterator();
+    CoordinateSystem::Iterator it = _coor_sys.iterator();
     double x;
     while (it.next(&x)) {
         const double y = sin(x);
