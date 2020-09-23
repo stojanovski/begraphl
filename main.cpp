@@ -193,7 +193,7 @@ public:
         void set(double value) {
             assert(_cur_step < _steps);
 
-            const Range& yr = _coor->_y_axis_range;
+            const Range& yr = _coor._y_axis_range;
             if (value < yr.from() || value > yr.to()) {
                 // value is out of range: ignore
                 return;
@@ -201,21 +201,21 @@ public:
 
             // convert "value" to a proper Frame value
             const double ratio = (value - yr.from()) / yr.distance();
-            Frame& frame = _coor->_frame;
+            Frame& frame = _coor._frame;
             const double col = frame.height() - (ratio * frame.height());
 
             frame.draw((unsigned)col, (unsigned)_cur_step, PIXEL_T_FILLED);
         }
 
     private:
-        Iterator(CoordinateSystem *coor, double from, double dist, size_t steps) :
+        Iterator(CoordinateSystem& coor, double from, double dist, size_t steps) :
             _coor(coor), _from(from), _dist(dist), _steps(steps), _cur_step(0)
         {
             assert(_dist > 0.0);
             assert(_steps > 1);
         }
 
-        CoordinateSystem * const _coor;
+        CoordinateSystem& _coor;
         double _from;
         double _dist;
         size_t _steps;
@@ -252,7 +252,7 @@ CoordinateSystem::CoordinateSystem(Frame& frame, const Range& x_axis, double y_o
 
 CoordinateSystem::Iterator CoordinateSystem::iterator()
 {
-    return Iterator(this, _x_axis_range.from(), _x_axis_range.distance(), _x_axis_range.steps());
+    return Iterator(*this, _x_axis_range.from(), _x_axis_range.distance(), _x_axis_range.steps());
 }
 
 class FuncChart
