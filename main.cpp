@@ -168,8 +168,6 @@ class CoordinateSystem
 public:
     class Iterator {
     public:
-        Iterator() : _steps(0), _cur_step(0) { }
-
         bool next(double *point) {
             if (_cur_step < _steps) {
                 *point = _from + (_cur_step++ * (_dist * (_steps - 1)));
@@ -180,13 +178,14 @@ public:
         }
 
     private:
-        Iterator(double from, double dist, size_t steps) :
-            _from(from), _dist(dist), _steps(steps), _cur_step(0)
+        Iterator(CoordinateSystem *coor, double from, double dist, size_t steps) :
+            _coor(coor), _from(from), _dist(dist), _steps(steps), _cur_step(0)
         {
             assert(_dist > 0.0);
             assert(_steps > 1);
         }
 
+        CoordinateSystem * const _coor;
         double _from;
         double _dist;
         size_t _steps;
@@ -201,7 +200,7 @@ public:
     }
     void set_point(const Point& p);
 
-    Iterator iterator() const;
+    Iterator iterator();
 
 private:
     const Frame& _frame;
@@ -223,9 +222,9 @@ CoordinateSystem::CoordinateSystem(Frame& frame, const Range& x_axis, double y_o
                           y_origin_offset + (half_distance * y_to_x_frame_ratio));
 }
 
-CoordinateSystem::Iterator CoordinateSystem::iterator() const
+CoordinateSystem::Iterator CoordinateSystem::iterator()
 {
-    return Iterator(_x_axis_range.from(), _x_axis_range.distance(), _x_axis_range.steps());
+    return Iterator(this, _x_axis_range.from(), _x_axis_range.distance(), _x_axis_range.steps());
 }
 
 void CoordinateSystem::set_point(const Point& p)
