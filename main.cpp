@@ -5,7 +5,6 @@
 #include <string>
 #include <cassert>
 #include <cmath>   // sin()
-#include <limits>  // std::numeric_limits()
 
 // system services:
 #include <unistd.h>
@@ -89,7 +88,7 @@ private:
 typedef unsigned char pixel_t;
 
 const pixel_t PIXEL_T_EMPTY = 0;
-const pixel_t PIXEL_T_FILLED = std::numeric_limits<pixel_t>::max();
+const pixel_t PIXEL_T_FILLED = 1;
 
 class Frame
 {
