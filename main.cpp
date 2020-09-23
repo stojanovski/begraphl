@@ -5,6 +5,7 @@
 #include <string>
 #include <cassert>
 #include <cmath>
+#include <limits>
 
 // system services:
 #include <unistd.h>
@@ -87,6 +88,8 @@ private:
 
 typedef unsigned char pixel_t;
 
+const pixel_t PIXEL_T_FILL = std::numeric_limits<pixel_t>::max();
+
 class Frame
 {
 public:
@@ -94,6 +97,7 @@ public:
 
     unsigned width() const { return _width; }
     unsigned height() const { return _height; }
+    void draw(unsigned row, unsigned col, pixel_t pix);
 
 private:
     const unsigned _width;
@@ -116,6 +120,15 @@ Frame::Frame(unsigned width, unsigned height) :
 
     // init empty frame
     _screen.resize(_width * _height, 0);
+}
+
+void Frame::draw(unsigned row, unsigned col, pixel_t pix)
+{
+    if (row >= _height || col >= _width) {
+        // out of bounds: ignore since we can't fit it in the frame
+        return;
+    }
+
 }
 
 std::ostream& operator<<(std::ostream& os, const Frame& f)
@@ -168,13 +181,17 @@ class CoordinateSystem
 public:
     class Iterator {
     public:
-        bool next(double *point) {
+        bool next(double *x) {
             if (_cur_step < _steps) {
-                *point = _from + (_cur_step++ * (_dist * (_steps - 1)));
+                *x = _from + (_cur_step++ * (_dist * (_steps - 1)));
                 return true;
             }
 
             return false;
+        }
+
+        void set(double value) {
+            assert(_cur_step < _steps);
         }
 
     private:
@@ -198,8 +215,6 @@ public:
     const StepRange& x_axis_range() const {
         return _x_axis_range;
     }
-    void set_point(const Point& p);
-
     Iterator iterator();
 
 private:
@@ -225,11 +240,6 @@ CoordinateSystem::CoordinateSystem(Frame& frame, const Range& x_axis, double y_o
 CoordinateSystem::Iterator CoordinateSystem::iterator()
 {
     return Iterator(this, _x_axis_range.from(), _x_axis_range.distance(), _x_axis_range.steps());
-}
-
-void CoordinateSystem::set_point(const Point& p)
-{
-    (void)p;
 }
 
 class FuncChart
@@ -263,7 +273,7 @@ void FuncChart::run()
     double x;
     while (it.next(&x)) {
         const double y = sin(x);
-        _coor_sys.set_point(Point{x, y});
+        it.set(y);
     }
 }
 
