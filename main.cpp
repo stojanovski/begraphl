@@ -199,7 +199,7 @@ public:
         }
 
         void set(double value) {
-            assert(_cur_step < _steps);
+            assert(_cur_step <= _steps);
 
             const Range& yr = _coor._y_axis_range;
             if (value < yr.from() || value > yr.to()) {
@@ -297,23 +297,24 @@ void FuncChart::run()
 
 static void test_move_cursor()
 {
-    std::cout << clear_screen << move_cursor(4, 8);
-    sleep_ms(1000);
-    std::cout << reset_cursor;
-    sleep_ms(1000);
+    std::cout << clear_screen;
+    for (unsigned i = 1; i <= 10; ++i) {
+        std::cout << move_cursor(i, i) << '+';
+        sleep_ms(250);
+    }
 }
 
 static void test_FuncChart()
 {
     std::cout << clear_screen;
-    FuncChart func_chart(Range(-10.0, 10.0), 100, 40);
+    FuncChart func_chart(Range(-4.0, 4.0), 100, 40);
     func_chart.run();
 }
 
 int main()
 {
     test_FuncChart();
-
+    //test_move_cursor();
     return 0;
 }
 
