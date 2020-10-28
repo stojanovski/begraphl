@@ -55,6 +55,13 @@ std::ostream& operator<<(std::ostream& os, const MoveCursorHelper& h)
     return h.action(os);
 }
 
+std::ostream& clear_screen(std::ostream & os)
+{
+    os << "\x1b[2J";
+    os.flush();
+    return os;
+}
+
 std::ostream& reset_cursor(std::ostream & os)
 {
     os << "\x1b[H";
@@ -292,7 +299,7 @@ void FuncChart::run()
 
 int main()
 {
-    std::cout << move_cursor(4, 8);
+    std::cout << clear_screen << move_cursor(4, 8);
     sleep_ms(1000);
     std::cout << reset_cursor;
     sleep_ms(1000);
