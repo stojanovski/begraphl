@@ -136,6 +136,7 @@ void Frame::draw(unsigned row, unsigned col, pixel_t pix)
         return;
     }
 
+    std::cout << move_cursor(row, col) << '+';
 }
 
 std::ostream& operator<<(std::ostream& os, const Frame& f)
@@ -269,9 +270,6 @@ public:
               unsigned frame_width,
               unsigned frame_height);
 
-    void init(const Range& x_axis_range,
-              unsigned frame_width,
-              unsigned frame_height);
     void run();
 
 private:
@@ -297,12 +295,25 @@ void FuncChart::run()
     }
 }
 
-int main()
+static void test_move_cursor()
 {
     std::cout << clear_screen << move_cursor(4, 8);
     sleep_ms(1000);
     std::cout << reset_cursor;
     sleep_ms(1000);
+}
+
+static void test_FuncChart()
+{
+    std::cout << clear_screen;
+    FuncChart func_chart(Range(-10.0, 10.0), 100, 40);
+    func_chart.run();
+}
+
+int main()
+{
+    test_FuncChart();
+
     return 0;
 }
 
