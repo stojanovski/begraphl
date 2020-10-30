@@ -275,8 +275,6 @@ public:
     {
     }
 
-    void run();
-
     template<typename FUNC> void run(FUNC func)
     {
         std::cout << clear_screen;
