@@ -191,7 +191,7 @@ public:
     public:
         bool next(double *x) {
             if (_cur_step < _steps) {
-                *x = _from + (_cur_step++ * (_dist * (_steps - 1)));
+                *x = _from + (_cur_step++ * (_dist / (_steps - 1)));
                 return true;
             }
 
@@ -307,7 +307,7 @@ static void test_move_cursor()
 static void test_FuncChart()
 {
     std::cout << clear_screen;
-    FuncChart func_chart(Range(-4.0, 4.0), 100, 40);
+    FuncChart func_chart(Range(-6.0, 6.0), 100, 40);
     func_chart.run();
 }
 
