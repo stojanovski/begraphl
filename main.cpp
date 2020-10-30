@@ -268,38 +268,34 @@ class FuncChart
 public:
     FuncChart(const Range& x_axis_range,
               unsigned frame_width,
-              unsigned frame_height);
+              unsigned frame_height) :
+        _frame(frame_width, frame_height),
+        _coor_sys(_frame, x_axis_range),
+        _frame_height(frame_height)
+    {
+    }
 
     void run();
+
+    template<typename FUNC> void run(FUNC func)
+    {
+        std::cout << clear_screen;
+
+        CoordinateSystem::Iterator it = _coor_sys.iterator();
+        double x;
+        while (it.next(&x)) {
+            const double y = func(x);
+            it.set(y);
+        }
+
+        std::cout << move_cursor(_frame_height + 1, 0);
+    }
 
 private:
     Frame _frame;
     CoordinateSystem _coor_sys;
     const unsigned _frame_height;
 };
-
-FuncChart::FuncChart(const Range& x_axis_range,
-                     unsigned frame_width,
-                     unsigned frame_height) :
-    _frame(frame_width, frame_height),
-    _coor_sys(_frame, x_axis_range),
-    _frame_height(frame_height)
-{
-}
-
-void FuncChart::run()
-{
-    std::cout << clear_screen;
-
-    CoordinateSystem::Iterator it = _coor_sys.iterator();
-    double x;
-    while (it.next(&x)) {
-        const double y = sin(x);
-        it.set(y);
-    }
-
-    std::cout << move_cursor(_frame_height + 1, 0);
-}
 
 static void test_move_cursor()
 {
@@ -313,7 +309,7 @@ static void test_move_cursor()
 static void test_FuncChart()
 {
     FuncChart func_chart(Range(-6.0, 6.0), 100, 40);
-    func_chart.run();
+    func_chart.run(sin);
 }
 
 int main()
