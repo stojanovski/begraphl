@@ -1,0 +1,10 @@
+* Decouple the drawing function from FuncChart
+- Decouple Frame from CoordinateSystem
+  - FuncChart should have both Frame and CoordinateSystem
+- Decouple the drawing from Frame
+  - Frame has fixed color and char
+  - Frame is passed to FuncChart.run() takes a Frame
+  - FuncChart should be renamed Frame
+  - Frame should be renamed PixelDrawer
+- Connect drawn lines
+
